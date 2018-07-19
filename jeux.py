@@ -5,7 +5,7 @@ from random import *
 
 import sqlite3
 
-Donnees = "C:/Users/Hassan.akar/PycharmProjects/FlappyMan/Donnees.sq3"
+Donnees = "C:/Users/Hassan.akar/Desktop/FlappyMan/Donnees.sq3"
 conn = sqlite3.connect(Donnees)
 cur = conn.cursor()
 #cur.execute("CREATE TABLE membres (score integer)")
@@ -107,7 +107,7 @@ def message(texte):
 
 def gameOver(scoreActuel):
     a = str(scoreActuel)
-    Donnees =  "C:/Users/Hassan.akar/PycharmProjects/FlappyMan/Donnees.sq3"
+    Donnees =  "C:/Users/Hassan.akar/Desktop/FlappyMan/Donnees.sq3"
     conn = sqlite3.connect(Donnees)
     cur = conn.cursor()
     cur.execute("SELECT * from membres")
