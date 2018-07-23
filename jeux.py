@@ -1,167 +1,185 @@
-import pygame
-from pygame.locals import Color
 import time
 from random import *
-
 import sqlite3
+import pygame
 
-Donnees = "C:/Users/Hassan.akar/Desktop/FlappyMan/Donnees.sq3"
-conn = sqlite3.connect(Donnees)
+data = "C:/Users/MSI-HASSAN/Desktop/FlappyMan/Donnees.sq3"
+conn = sqlite3.connect(data)
 cur = conn.cursor()
-#cur.execute("CREATE TABLE membres (score integer)")
-#cur.execute("insert into membres (score) values (0)")
-#conn.commit()
-
-
-
+# cur.execute("CREATE TABLE membres (score integer)")
+# cur.execute("insert into membres (score) values (0)")
+# conn.commit()
 
 background = pygame.image.load('image/background.png')
-blanc = (255,255,255)
-
+blanc = (255, 255, 255)
 
 pygame.init()
 
-fenetreLargeur = 800
-fenetreHauteur = 500
-mrMuscleLargeur = 50
-mrMuscleHauteur = 66
-haltereLargeur = 300
-haltereHauteur = 300
+window_width = 800
+window_hight = 500
+shwarzy_width = 50
+shwarzy_hight = 66
+cloud_width = 300
+cloud_hight = 300
+# Création de la fenêtre du jeu en paramètre la largeur et la hauteur
+window = pygame.display.set_mode((window_width, window_hight))
+# Création d'un nom pour notre fenêtre de jeu. J'ai mis le nom de mon jeu.
+pygame.display.set_caption("FlappyMan")
+# Horloge de pygame
+horloge = pygame.time.Clock()
 
-
-fenetre = pygame.display.set_mode((fenetreLargeur,fenetreHauteur))#Création de la fenêtre du jeu en paramètre la largeur et la hauteur
-pygame.display.set_caption("FlappyMan") #Création d'un nom pour notre fenêtre de jeu. J'ai mis le nom de mon jeu.
-horloge = pygame.time.Clock() #Horloge de pygame
-
-
-imageMuscle = pygame.image.load('image/muscle.png')
-haltereHaut = pygame.image.load('image/NuageBas.png')
-haltereBas = pygame.image.load('image/NuageHaut.png')
+shwarzy_picture = pygame.image.load('image/muscle.png')
+cloud_up = pygame.image.load('image/NuageBas.png')
+cloud_down = pygame.image.load('image/NuageHaut.png')
 
 pygame.display.flip()
 
-pygame.mixer.music.load("musique/Power Bots Loop.wav") #Musique du jeu
+# Musique du jeu
+pygame.mixer.music.load("musique/Power Bots Loop.wav")
 pygame.mixer.music.play(-1)
 
 
+def score(iterrator):
+
+    _police = pygame.font.Font('font/BradBunR.ttf', 24)
+    _texte = _police.render("score : " + str(iterrator), True, (244, 66, 116))
+    window.blit(_texte, [10, 0])
 
 
-def score(iterateur):
-
-    police = pygame.font.Font('font/BradBunR.ttf',24)
-    texte = police.render("score : " + str(iterateur) , True ,(244,66,116))
-    fenetre.blit(texte,[10,0])
-
-def highScore(iterateur):
-
-    police = pygame.font.Font('font/BradBunR.ttf',24)
-    texte = police.render("high score : " + str(iterateur) , True ,(244,66,116))
-    fenetre.blit(texte,[650,0])
+def hight_score(hs_iterrator):
+    police_hs = pygame.font.Font('font/BradBunR.ttf', 24)
+    text_hs = police_hs.render("high score : " + str(hs_iterrator), True, (244, 66, 116))
+    window.blit(text_hs, [650, 0])
 
 
-def halteres(x_haltere,y_halere,espace):
+def cloud_display(x_cloud, y_cloud, space_beetween_cloud):
+    # Affichage du 1er haltere. Pour le 1er haltere x et y ont la même valeur
+    window.blit(cloud_up, (x_cloud, y_cloud))
+
+    # Ici cela correspond a y + la hauteur du nuage + l'espace pour placer l'haltere en bas.
+    window.blit(cloud_down, (x_cloud, y_cloud+cloud_width+space_beetween_cloud))
 
 
-    fenetre.blit(haltereHaut , (x_haltere,y_halere)) #Affichage du 1er haltere. Pour le 1er haltere x et y ont la même valeur
-
-    fenetre.blit(haltereBas, (x_haltere, y_halere+haltereLargeur+espace))  # Ici cela correspond a y + la hauteur du nuage + l'espace pour placer l'haltere en bas.
-
-
-def playOrQuit():
-    for event in pygame.event.get([pygame.KEYDOWN , pygame.KEYUP , pygame.QUIT]): #Parcours les event keydown keyup et quit
+def play_or_quit():
+    # Parcours les event keydown keyup et quit
+    for event in pygame.event.get([pygame.KEYDOWN, pygame.KEYUP, pygame.QUIT]):
         if event.type == pygame.QUIT:
             pygame.quit()
             quit()
-        elif event.type == pygame.KEYUP: #On utilise le relachement de la touche pour que la personne appuie à nouveau pour continuer et relache à nouveau
+
+        # On utilise le relachement de la touche pour que la personne appuie
+        # à nouveau pour continuer et relache à nouveau
+        elif event.type == pygame.KEYUP:
             continue
-        return event.key #Retourne une touche du clavier
+        # Retourne une touche du clavier
+        return event.key
     return None
 
 
-
-def creaTexteObj(text,police):
-    textFenetre = police.render(text,True,(244,66,116))
-    return  textFenetre, textFenetre.get_rect()
+def create_text_object(text, police):
+    window_text = police.render(text, True, (244, 66, 116))
+    return window_text, window_text.get_rect()
 
 
 def message(texte):
-    gameOverTexte = pygame.font.Font('font/BradBunR.ttf',150) #definit une police ainsi que sa taille
-    petitTexte = pygame.font.Font('font/BradBunR.ttf', 30)
+    # definit une police ainsi que sa taille
+    game_over_texte = pygame.font.Font('font/BradBunR.ttf', 150)
+    little_text = pygame.font.Font('font/BradBunR.ttf', 30)
 
-    gameOverTexteFenetre, gameOverTexteRect =creaTexteObj(texte,gameOverTexte) #Ici je met la variable en paramètre (texte) pour me facilité en cas de modification. J'aurais uniquement à modifier la methode game over
-    gameOverTexteRect.center = fenetreLargeur/2, ((fenetreHauteur/2)-50)# pour centrer et espacer mes 2 messages.
-    fenetre.blit(gameOverTexteFenetre,gameOverTexteRect)
+    # Ici je met la variable en paramètre (texte) pour me facilité en cas de modification.
+    # J'aurais uniquement à modifier la methode game over.
+    game_over_texte_window, game_over_texte_rect = create_text_object(texte, game_over_texte)
 
-    petitTexteFenetre, petitTexteRect = creaTexteObj("Appuyer sur une touche pour continuer", petitTexte)
-    petitTexteRect.center = fenetreLargeur / 2, ((fenetreHauteur / 2) + 50)
-    fenetre.blit(petitTexteFenetre, petitTexteRect)
+    # pour centrer et espacer mes 2 messages.
+    game_over_texte_rect.center = window_width/2, ((window_hight/2)-50)
+    window.blit(game_over_texte_window, game_over_texte_rect)
 
-    pygame.display.update() #Mise à jour de la fenetre
-    time.sleep(1) #Temps de latence avant de recommencer le jeu.
+    little_text_window, little_text_rect = create_text_object("Appuyer sur une touche pour continuer", little_text)
+    little_text_rect.center = window_width / 2, ((window_hight / 2) + 50)
+    window.blit(little_text_window, little_text_rect)
 
-    while playOrQuit() == None: # tant que la fonction ne renvoie rien
-        horloge.tick()  #Nombre d'image par seconde correspond a 0 , pour que ce ne soit pas renouveler
+    # Mise à jour de la fenetre
+    pygame.display.update()
+    # Temps de latence avant de recommencer le jeu.
+    time.sleep(1)
+
+    # tant que la fonction ne renvoie rien
+    while play_or_quit() is None:
+        # Nombre d'image par seconde correspond a 0 , pour que ce ne soit pas renouveler.
+        horloge.tick()
     boucleJeu()
 
 
-
-def gameOver(scoreActuel):
-    a = str(scoreActuel)
-    Donnees =  "C:/Users/Hassan.akar/Desktop/FlappyMan/Donnees.sq3"
-    conn = sqlite3.connect(Donnees)
-    cur = conn.cursor()
-    cur.execute("SELECT * from membres")
-    liste = list(cur)
+def gameOver(actual_score):
+    a = str(actual_score)
+    data_score = "C:/Users/MSI-HASSAN/Desktop/FlappyMan/Donnees.sq3"
+    connection_data = sqlite3.connect(data_score)
+    cursor_connection = connection_data.cursor()
+    cursor_connection.execute("SELECT * from membres")
+    liste = list(cursor_connection)
     hscore = []
 
     for i in range(0, len(liste)):
         hscore += liste[i]
-    if (int(hscore[-1]) < scoreActuel):
-        cur.execute("INSERT into membres(score) values(?)", (a,))
-        conn.commit()
-        cur.close()
-        conn.close()
-
-
-
+    if int(hscore[-1]) < actual_score:
+        cursor_connection.execute("INSERT into membres(score) values(?)", (a,))
+        connection_data.commit()
+        cursor_connection.close()
+        connection_data.close()
 
     message("Perdu!")
 
 
-def deplacementImage(x,y,image):
-    fenetre.blit(image, (x,y)) # La méthode blit permet d'ajouter par dessus notre fenetre notre image
+def deplacement_image(x, y, image):
+    # La méthode blit permet d'ajouter par dessus notre fenetre notre image
+    window.blit(image, (x, y))
+
 
 def boucleJeu():
-    x = 150 # largeur. plus le nombre est élevé plus notre tête sera avancé.
-    y = 200 # Longueur. Plus le nombre est élevé plus notre tête descend
+    # largeur. plus le nombre est élevé plus notre tête sera avancé.
+    x = 150
+    # Longueur. Plus le nombre est élevé plus notre tête descend
+    y = 200
     y_mouvement = 0
-    imageMuscle = pygame.image.load('image/muscle.png')  # charge l'image dans la variable imageMuscle
+    # charge l'image dans la variable imageMuscle
+    scharzy_picture = pygame.image.load('image/muscle.png')
 
-    x_haltere = fenetreLargeur
-    y_haltere = randint(-300,10) # Nombre entier aleatoire
-    espace = mrMuscleHauteur*3
-    haltere_vitesse = 6
-
+    x_cloud = window_width
+    # Nombre entier aleatoire pour déterminer position du nuage
+    y_cloud = randint(-300, 10)
+    space_beetween_cloud = shwarzy_hight*3
+    cloud_speed = 6
     score_actuel = 0
-
-
-    game_over = False  # permet de fermer la fenetre de notre jeu. Boucle de base de notre jeu.
+    # permet de fermer la fenetre de notre jeu. Boucle de base de notre jeu.
+    game_over = False
     while not game_over:
 
-        for event in pygame.event.get():  # Parcours tous les evenement grace au for
-            if event.type == pygame.QUIT: #Si c'est un evenement de type QUIT on arrete
+        # Parcours tous les evenement grace au for
+        for event in pygame.event.get():
+
+            # Si c'est un evenement de type QUIT on arrete
+            if event.type == pygame.QUIT:
                 game_over = True
-            if event.type ==  pygame.KEYDOWN: #Apuuie sur la touche
-                if event.key == pygame.K_UP: #Fleche haute
-                    y_mouvement = -6 # Les moins en y vont vers le haut
-            if event.type == pygame.KEYUP: #Relache la touche
-                y_mouvement = 6 #+5 pour que sa redescende de 5
 
-        y = y+y_mouvement # pour mettre a jour constamment la position de y en fonction des evenements
-        fenetre.blit(background,[0,0])  # Rafraichit l'écran pour qu'il prend bien en compte la l'image
-        deplacementImage(x, y, imageMuscle)
+            # Apuuie sur la touche
+            if event.type == pygame.KEYDOWN:
+                # Fleche haute
+                if event.key == pygame.K_UP:
+                    # Les moins en y vont vers le haut
+                    y_mouvement = -6
+                    # Relache la touche
+            if event.type == pygame.KEYUP:
+                # +6 pour que sa redescende de 6
+                y_mouvement = 6
 
-        halteres(x_haltere,y_haltere , espace)
+        # pour mettre a jour constamment la position de y en fonction des evenements
+        y = y+y_mouvement
+
+        # Rafraichit l'écran pour qu'il prend bien en compte la l'image
+        window.blit(background, [0, 0])
+        deplacement_image(x, y, scharzy_picture)
+
+        cloud_display(x_cloud, y_cloud, space_beetween_cloud)
 
         score(score_actuel)
         cur.execute("select * from membres")
@@ -169,43 +187,49 @@ def boucleJeu():
         print(cur)
         print(liste)
 
-        hscore=[]
-        for i in range (0, len(liste)):
+        hscore = []
+        for i in range(0, len(liste)):
             hscore += liste[i]
         print(hscore)
 
-        highScore(hscore[-1])
+        hight_score(hscore[-1])
 
-        x_haltere -= haltere_vitesse
+        x_cloud -= cloud_speed
 
-        if y > fenetreHauteur -65 or y < -1: #Si position actuelle image est supérieur à la hauteur de la fenetre. Point 0 de l'image est tout en haut. On laisse une petite marge du coup.
+        # Si position actuelle image est supérieur à la hauteur de la fenetre.
+        # Point 0 de l'image est tout en haut. On laisse une petite marge du coup.
+        if y > window_hight -65 or y < -1:
             gameOver(score_actuel)
 
-        if x_haltere < (-1*haltereLargeur):  #-1 pour qu'on sort de l'écran , c'est l'axe des x!
-            x_haltere = fenetreLargeur # On réinitialise la potition de l'haltere
-            y_haltere = randint(-300,10) #Du coup on veut que la position de l'haltere soit de nouveau placé au pif pour éviter qu'il conserve sa place avant que l'haltere se barre.
-            if score_actuel > 3 and score_actuel < 5:  # augmenter la difficulté du jeu en fonction du score. Plus le score sera eleve plus la vitesse de defilement du jeu augmenteras.
-                haltere_vitesse = 6.5
-                espace = mrMuscleHauteur * 2.7
+        # -1 pour qu'on sort de l'écran , c'est l'axe des x!
+        if x_cloud < (-1*cloud_width):
+            # On réinitialise la potition du nuage
+            x_cloud = window_width
+            # Du coup on veut que la position du nuage soit de nouveau placé au pif pour éviter qu'il
+            # conserve sa place avant que l'haltere se barre.
+            y_cloud = randint(-300, 10)
 
-            if score_actuel > 5 and score_actuel < 8:
-                haltere_vitesse = 7
-                espace = mrMuscleHauteur * 2.6
+            # augmenter la difficulté du jeu en fonction du score.
+            # Plus le score sera eleve plus la vitesse de defilement du jeu augmenteras.
+            if 3 <= score_actuel <= 5:
+                cloud_speed = 15
+                space_beetween_cloud = shwarzy_hight * 2.7
 
-
-            if score_actuel > 7 and score_actuel < 10:
-                haltere_vitesse = 7.5
-                espace = mrMuscleHauteur * 2.4
-
-
-        if (x + mrMuscleLargeur) > x_haltere + 40 and x + 40 < (x_haltere + haltereLargeur):
-            if y + 20 < (y_haltere + haltereHauteur) or y + mrMuscleHauteur > (y_haltere + haltereHauteur + espace + 30):
+            if 5 <= score_actuel <= 8:
+                cloud_speed = 7
+                space_beetween_cloud = shwarzy_hight * 2.6
+            if 7 <= score_actuel <= 10:
+                cloud_speed = 7.5
+                space_beetween_cloud = shwarzy_hight * 2.4
+        if (x + shwarzy_width) > x_cloud + 40 and x + 40 < (x_cloud + cloud_width):
+            if y + 20 < (y_cloud + cloud_hight) or y + shwarzy_hight > (y_cloud + cloud_hight + space_beetween_cloud + 30):
                 gameOver(score_actuel)
 
-        if x_haltere < (x-haltereLargeur) < x_haltere + haltere_vitesse+1:
+        if x_cloud < (x-cloud_width) < x_cloud + cloud_speed+1:
             score_actuel = score_actuel+1
 
         pygame.display.update()
+
 
 boucleJeu()
 pygame.quit()
