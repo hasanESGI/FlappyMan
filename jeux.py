@@ -6,9 +6,9 @@ import pygame
 data = "C:/Users/MSI-HASSAN/Desktop/FlappyMan/Donnees.sq3"
 conn = sqlite3.connect(data)
 cur = conn.cursor()
-# cur.execute("CREATE TABLE membres (score integer)")
-# cur.execute("insert into membres (score) values (0)")
-# conn.commit()
+#cur.execute("CREATE TABLE membres (score integer)")
+#cur.execute("insert into membres (score) values (0)")
+#conn.commit()
 
 background = pygame.image.load('image/background.png')
 blanc = (255, 255, 255)
